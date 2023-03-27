@@ -9,15 +9,15 @@ from enum import Enum
 import re
 import numpy as np
 
-#np.seterr(all='raise')
+np.seterr(all='raise')
 
 
 def add(a, b, m=256):
-    return (a + b) % m
+    return (int(a) + b) % m
 
 
 def subtract(a, b, m=256):
-    return (a - b) % m
+    return (int(a) - b) % m
 
 
 def left_rotate(a, d, sizeof_a=8):
