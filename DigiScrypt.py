@@ -12,15 +12,17 @@ import numpy as np
 np.seterr(all='raise')
 
 
-def add(a, b, m=256):
-    return (int(a) + b) % m
+def add(a: int, b: int, m=256):
+    return (a + b) % m
 
 
-def subtract(a, b, m=256):
-    return (int(a) - b) % m
+def subtract(a: int, b: int, m=256):
+    return (a - b) % m
 
 
-def left_rotate(a, d, sizeof_a=8):
+def left_rotate(a: int, d: int, sizeof_a=8):
+    sizeof_a = sys.getsizeof(a)
+    d %= sizeof_a
     b = a << d
     c = a >> (sizeof_a - d)
     b |= c
@@ -28,7 +30,9 @@ def left_rotate(a, d, sizeof_a=8):
     return b & int('1' * sizeof_a, 2)
 
 
-def right_rotate(a, d, sizeof_a=8):
+def right_rotate(a: int, d: int, sizeof_a=8):
+    sizeof_a = sys.getsizeof(a)
+    d %= sizeof_a
     b = a >> d
     c = a << (sizeof_a - d)
     c &= int('1' * sizeof_a, 2)
@@ -73,7 +77,7 @@ class ByteCipher:
                 return 10
 
     @staticmethod
-    def shift_byte(a: np.uint8, k: int, b: np.uint8 = 2, phase: int = 0, invert: bool = False):
+    def shift_byte(a: int, k: int, b: int = 2, phase: int = 0, invert: bool = False):
         return shift[(k + phase) % 5][invert](a, b)
 
     def shift_byte_array(self, data: np.array, passphrase: str, invert: bool = False):
@@ -82,17 +86,17 @@ class ByteCipher:
         key = _seed[0]
         reference = _seed[1]
         key_length = len(key)
-        encrypted_data = np.array(data, np.uint8)
+        encrypted_data = np.array(data, int)
         for i, a in enumerate(data):
             i_mod_l = i % key_length
             phase = i // block_len
-            encrypted_data[i] = self.shift_byte(a, key[i_mod_l], reference[i_mod_l], phase, invert)
+            encrypted_data[i] = self.shift_byte(int(a), int(key[i_mod_l]), int(reference[i_mod_l]), phase, invert)
         return encrypted_data
 
     def shift_string(self, s: str, key, invert: bool = False):
         s_bytes = bytes(s, 'utf-8')
         s_bytes_array = np.frombuffer(s_bytes, np.uint8)
-        print(f"Original unencrypted s_bytes_array: ", s_bytes_array)
+        print(f"Original unencrypted s_bytes_array: \n", s_bytes_array)
         shifted_bytes = self.shift_byte_array(s_bytes_array, key, invert)
         return shifted_bytes
 
@@ -105,10 +109,10 @@ def test_cipher():
     print("pw: ", pw)
     cipher = ByteCipher()
     shifted_bytes = cipher.shift_string(s, pw)
-    print(f"Encrypted data: ", shifted_bytes)
+    print(f"Encrypted data: \n", shifted_bytes)
     decrypted_data = cipher.shift_byte_array(shifted_bytes, pw, True)
-    print(f"Decrypted data: ", decrypted_data)
-    print(f"Decrypted string: ", decrypted_data.tobytes().decode())
+    print(f"Decrypted data: \n", decrypted_data)
+    print(f"Decrypted string: \n", decrypted_data.tobytes().decode())
 
 
 if __name__ == '__main__':
