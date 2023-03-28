@@ -62,7 +62,7 @@ class ByteCipher:
     @staticmethod
     def get_block_length(_input: str | int):
         # use percentage of total input size or fixed length in bits?
-        if _input is int:
+        if type(_input) is int:
             return _input
         else:
             digits = re.findall(r'\d', _input)
